@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SkillBuilder</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top" id="top">
+  <a class="brand" href="#/home"><span class="logo" aria-hidden="true">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg>
+  </span>SkillBuilder</a>
+  <nav class="nav" id="nav" aria-label="Main"></nav>
+  <div class="chips-top" id="chips"></div>
+</header>
+<main id="main" tabindex="-1"></main>
+<footer class="foot">Press <kbd>?</kbd> for keyboard shortcuts · Your data stays in this browser.</footer>
+<nav class="tabbar" id="tabs" aria-label="Main (mobile)"></nav>
+<div class="modal" id="help" hidden role="dialog" aria-modal="true" aria-labelledby="helpT">
+  <div class="card">
+    <h2 id="helpT">Keyboard shortcuts</h2>
+    <h3>Anywhere</h3>
+    <div class="keys"><span><kbd>g</kbd> then <kbd>h</kbd></span><span>Today</span><span><kbd>g</kbd> then <kbd>l</kbd></span><span>Learn</span><span><kbd>g</kbd> then <kbd>p</kbd></span><span>Practice</span><span><kbd>g</kbd> then <kbd>t</kbd></span><span>Tips</span><span><kbd>g</kbd> then <kbd>r</kbd></span><span>Review</span><span><kbd>g</kbd> then <kbd>j</kbd></span><span>Journal</span><span><kbd>g</kbd> then <kbd>m</kbd></span><span>Me</span><span><kbd>/</kbd></span><span>Search courses</span><span><kbd>↑ ↓ ← →</kbd></span><span>Move between cards and lessons</span><span><kbd>Enter</kbd></span><span>Open</span></div>
+    <h3>Inside a lesson</h3>
+    <div class="keys"><span><kbd>n</kbd> or <kbd>→</kbd></span><span>Next lesson</span><span><kbd>p</kbd> or <kbd>←</kbd></span><span>Previous lesson</span><span><kbd>↑</kbd> <kbd>↓</kbd> <kbd>Space</kbd></span><span>Scroll and read</span><span><kbd>Tab</kbd> <kbd>Enter</kbd></span><span>Jump to a section, tick activities, answer quiz</span><span><kbd>Esc</kbd></span><span>Back to course</span></div>
+    <button class="btn primary" data-act="closeHelp">Got it</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="data.js"></script>
+<script src="data2.js"></script>
+<script src="data3.js"></script>
+<script src="data4.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
