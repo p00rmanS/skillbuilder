@@ -193,7 +193,7 @@ window.COURSES.push(
       [Q('What is the best way to describe your language level?', ['Exaggerate', 'Be honest and specific', 'Hide it', 'Say nothing'], 1, 'Honesty builds trust and avoids bad surprises.')]),
     L('Customer phrases in Spanish', 8, ['Greet', 'Clarify', 'Solve', 'Close'],
       'A small set of polite phrases covers most support conversations. Use usted (formal) with customers.',
-      [['Greet', '"Gracias por llamar, habla [su nombre]. ¿En qué puedo ayudarle?"'],
+      [['Greet', '"Gracias por llamar, habla [your name]. ¿En qué puedo ayudarle?"'],
        ['Clarify', '"¿Podría repetir, por favor?" "Para confirmar, ¿no puede iniciar sesión?"'],
        ['Solve', '"Voy a revisar su cuenta." "Un momento, por favor." "Ya está solucionado."'],
        ['Close', '"¿Hay algo más en lo que pueda ayudarle?" "Gracias por su paciencia. ¡Que tenga un buen día!"']],
