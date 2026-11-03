@@ -200,8 +200,9 @@ main { max-width: 1080px; margin: 0 auto; padding: 40px clamp(16px, 4vw, 40px) 9
 .why { margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); font-size: .95rem; }
 @media (max-width: 860px) {
   .reader { grid-template-columns: 1fr; gap: 20px; }
-  .toc { position: static; flex-direction: row; flex-wrap: wrap; gap: 6px; }
-  .toc button { background: var(--surface2); padding: 6px 12px; }
+  .toc { position: static; flex-direction: row; flex-wrap: nowrap; gap: 6px; overflow-x: auto; margin: 0 -16px; padding: 0 16px 6px; scrollbar-width: none; }
+  .toc::-webkit-scrollbar { display: none; }
+  .toc button { background: var(--surface2); padding: 6px 12px; white-space: nowrap; flex: none; }
   .toc p { display: none; }
   .script .line { flex-direction: column; gap: 4px; }
 }
@@ -329,3 +330,15 @@ body.in-lesson footer.foot { display: none; }
   .hint { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+
+/* Mentor's corner */
+.mentor { background: var(--accent-soft); border-radius: 22px; padding: 22px 26px; }
+.mentor h2 { margin-top: 0; }
+.mtag { display: inline-block; font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.mentor p { margin: 0; font-size: 1.1rem; line-height: 1.65; }
+.mworld { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.mworld ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.mworld li { line-height: 1.6; font-size: 1.02rem; overflow-wrap: anywhere; display: grid; grid-template-columns: 6.4em 1fr; gap: 8px; }
+.mworld li b { color: var(--accent); }
+.mworld li:not(:has(b)) { display: block; }
+@media (max-width: 860px) { .mentor { padding: 18px 18px; } }
