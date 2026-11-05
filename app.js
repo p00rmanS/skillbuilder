@@ -96,10 +96,10 @@ function render() {
     $('#nav').innerHTML = ''; $('#tabs').innerHTML = ''; $('#chips').innerHTML = '';
     main.innerHTML = onboardView(); window.scrollTo(0, 0); return;
   }
-  const navHTML = NAV.map(([k, label, ic]) => { const on = view === k || (k === 'learn' && (view === 'course' || view === 'lesson')); return `<a href="#/${k}" class="${on ? 'on' : ''}" ${on ? 'aria-current="page"' : ''}>${icon(ic)}<span>${label}</span></a>`; }).join('');
+  const navHTML = NAV.map(([k, label, ic]) => { const on = view === k || (k === 'learn' && (view === 'course' || view === 'lesson')) || (k === 'tips' && view === 'toolkit'); return `<a href="#/${k}" class="${on ? 'on' : ''}" ${on ? 'aria-current="page"' : ''}>${icon(ic)}<span>${label}</span></a>`; }).join('');
   $('#nav').innerHTML = navHTML; $('#tabs').innerHTML = navHTML;
   $('#chips').innerHTML = `<span class="tchip fire" title="Day streak">${flame()}${streakNow()}</span><span class="tchip" title="XP">⚡ ${S.xp}</span><button class="tchip icon" data-act="theme" aria-label="Change theme">◐</button><button class="tchip icon" data-act="help" aria-label="Keyboard shortcuts">?</button>`;
-  const views = { home: homeView, learn: learnView, course: courseView, lesson: lessonView, practice: practiceView, tips: tipsView, review: reviewView, journal: journalView, profile: profileView };
+  const views = { home: homeView, learn: learnView, course: courseView, lesson: lessonView, practice: practiceView, tips: tipsView, toolkit: toolkitView, review: reviewView, journal: journalView, profile: profileView };
   main.innerHTML = (views[view] || homeView)(arg);
   window.scrollTo(0, 0);
   if (view === 'practice') initPractice();
@@ -442,10 +442,26 @@ function tipList() {
 }
 function tipsView() {
   const cats = ['All', 'Saved', 'Quick wins', ...new Set(courses.map(c => c.cat))];
-  return `<div class="hero"><p class="eyebrow">Library</p><h1>Tips</h1><p class="lead">Small, high-leverage ideas. Star the ones to reread. Press <kbd>/</kbd> to search.</p></div>
+  return `<div class="hero"><p class="eyebrow">Library</p><h1>Tips</h1><p class="lead">Small, high-leverage ideas. Star the ones to reread. Press <kbd>/</kbd> to search.</p><p><a class="btn primary" href="#/toolkit">Open the Toolkit: templates and scripts →</a></p></div>
   <div class="toolbar"><div class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg><input type="search" id="tipQ" placeholder="Search tips" aria-label="Search tips" value="${esc(tipQuery)}"></div>
   <div class="chips" id="tipChips" data-nav>${cats.map(c => `<button class="chip ${c === tipFilter ? 'on' : ''}" data-act="filterTip" data-v="${c}">${c}</button>`).join('')}</div></div>
   <div class="grid" id="tiplist">${tipList()}</div>`;
+}
+
+/* ---------- toolkit: copy-ready templates, scripts and phrase banks ---------- */
+const TK = () => window.TOOLKIT || [];
+let tkFilter = 'All', tkQuery = '';
+function tkList() {
+  const q = tkQuery.toLowerCase();
+  const list = TK().map((t, i) => ({ ...t, i })).filter(t => (tkFilter === 'All' || t.cat === tkFilter) && (!q || (t.t + ' ' + t.text + ' ' + t.when).toLowerCase().includes(q)));
+  return list.length ? list.map(t => `<article class="card tpl"><div class="row between"><h3>${esc(t.t)}</h3><span class="tchip">${esc(t.cat)}</span></div><p class="muted small">${esc(t.when)}</p><pre class="tplbox">${esc(t.text)}</pre><button class="btn" data-act="copyTk" data-i="${t.i}">Copy</button></article>`).join('') : '<p class="muted">Nothing matches. Try another word.</p>';
+}
+function toolkitView() {
+  const cats = ['All', ...new Set(TK().map(t => t.cat))];
+  return `<div class="hero"><p class="eyebrow">Library</p><h1>Toolkit</h1><p class="lead">Copy-ready emails, call scripts, interview answers and phrase banks. Change the [brackets], make them sound like you. Press <kbd>/</kbd> to search.</p></div>
+  <div class="toolbar"><div class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg><input type="search" id="tkQ" placeholder="Search the toolkit" aria-label="Search the toolkit" value="${esc(tkQuery)}"></div>
+  <div class="chips" id="tkChips" data-nav>${cats.map(c => `<button class="chip ${c === tkFilter ? 'on' : ''}" data-act="filterTk" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div></div>
+  <div class="grid" id="tklist">${tkList()}</div>`;
 }
 
 /* ---------- review (spaced repetition) ---------- */
@@ -519,6 +535,8 @@ const actions = {
   },
   setGoal(el) { S.goal = +el.dataset.x; save(); render(); },
   filterLearn(el) { learnFilter = el.dataset.v; $$('.chip', el.parentNode).forEach(c => { c.classList.toggle('on', c === el); c.setAttribute('aria-pressed', c === el); }); $('#catalog').innerHTML = catalogHTML(); },
+  filterTk(el) { tkFilter = el.dataset.v; $$('#tkChips .chip').forEach(c => c.classList.toggle('on', c === el)); $('#tklist').innerHTML = tkList(); },
+  copyTk(el) { const it = TK()[+el.dataset.i], done = () => toast('Copied. Edit the [brackets] before you send.'); const fb = () => { const ta = document.createElement('textarea'); ta.value = it.text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch { toast('Select the text and copy it by hand.'); } ta.parentNode.removeChild(ta); }; navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(it.text).then(done, fb) : fb(); },
   filterTip(el) { tipFilter = el.dataset.v; $$('#tipChips .chip').forEach(c => c.classList.toggle('on', c === el)); $('#tiplist').innerHTML = tipList(); },
   fav(el) { const id = el.dataset.id; S.favs.includes(id) ? S.favs.splice(S.favs.indexOf(id), 1) : S.favs.push(id); save(); $('#tiplist').innerHTML = tipList(); },
   wishTick(el) { S.wish[+el.dataset.i].done = el.checked; if (el.checked) touch(15); save(); render(); },
@@ -572,6 +590,7 @@ document.addEventListener('input', e => {
   if (t.id === 'o-min') { ob.minutes = +t.value; $('#o-min-v').textContent = t.value + ' min'; }
   if (t.id === 'p-min') $('#p-min-v').textContent = t.value;
   if (t.id === 'tipQ') { tipQuery = t.value; $('#tiplist').innerHTML = tipList(); }
+  if (t.id === 'tkQ') { tkQuery = t.value; $('#tklist').innerHTML = tkList(); }
   if (t.id === 'catQ') { learnQuery = t.value; $('#catalog').innerHTML = catalogHTML(); }
 });
 document.addEventListener('submit', e => {
@@ -608,7 +627,7 @@ function arrowNav(e) {
   if (best) { e.preventDefault(); best.focus(); best.scrollIntoView({ block: 'nearest' }); }
 }
 let chord = false, chordT;
-const CHORDS = { h: 'home', l: 'learn', p: 'practice', t: 'tips', r: 'review', j: 'journal', m: 'profile' };
+const CHORDS = { k: 'toolkit', h: 'home', l: 'learn', p: 'practice', t: 'tips', r: 'review', j: 'journal', m: 'profile' };
 document.addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const t = e.target, k = e.key, help = $('#help');
@@ -623,6 +642,7 @@ document.addEventListener('keydown', e => {
   if (typing) {
     if (k === 'Escape') t.blur();
     if (k === 'ArrowDown' && t.id === 'catQ') { const a = $('#catalog a'); if (a) { e.preventDefault(); a.focus(); } }
+    if (k === 'ArrowDown' && t.id === 'tkQ') { const b = $('#tkChips .chip'); if (b) { e.preventDefault(); b.focus(); } }
     if (k === 'ArrowDown' && t.id === 'tipQ') { const b = $('#tipChips .chip'); if (b) { e.preventDefault(); b.focus(); } }
     return;
   }
@@ -630,7 +650,7 @@ document.addEventListener('keydown', e => {
   if (k === '?') { e.preventDefault(); actions.help(); return; }
   if (chord) { chord = false; const v = CHORDS[k.toLowerCase()]; if (v) { e.preventDefault(); go(v); } return; }
   if (k === 'g') { chord = true; clearTimeout(chordT); chordT = setTimeout(() => { chord = false; }, 1200); return; }
-  if (k === '/') { const q = $('#catQ') || $('#tipQ'); if (q) { e.preventDefault(); q.focus(); } return; }
+  if (k === '/') { const q = $('#catQ') || $('#tipQ') || $('#tkQ'); if (q) { e.preventDefault(); q.focus(); } return; }
   if (route()[0] === 'review' && /^[1-4]$/.test(k) && $('#rq')) { e.preventDefault(); reviewAnswer(+k - 1); return; }
   if (route()[0] === 'review' && k === 'Enter' && $('#revBtn') && !t.matches('button')) { e.preventDefault(); render(); return; }
   if (k.startsWith('Arrow') || k === 'Home' || k === 'End') arrowNav(e);

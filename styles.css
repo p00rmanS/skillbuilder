@@ -342,3 +342,10 @@ body.in-lesson footer.foot { display: none; }
 .mworld li b { color: var(--accent); }
 .mworld li:not(:has(b)) { display: block; }
 @media (max-width: 860px) { .mentor { padding: 18px 18px; } }
+
+/* Toolkit */
+.tpl { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.tpl h3 { margin: 0; font-size: 1.05rem; }
+.tpl .row { width: 100%; gap: 10px; align-items: flex-start; }
+.tplbox { width: 100%; margin: 0; padding: 14px 16px; background: var(--surface2); border: 1px solid var(--line); border-radius: 14px; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: .95rem; line-height: 1.6; max-height: 320px; overflow: auto; }
+.toast { width: max-content; max-width: calc(100vw - 32px); text-align: center; border-radius: 18px; }
