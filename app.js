@@ -77,10 +77,20 @@ const IC = {
   zap: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
   repeat: '<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
   edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/>',
-  user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'
+  user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  check: '<polyline points="20 6 9 17 4 12"/>',
+  snow: '<line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4 4 4"/>',
+  star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+  contrast: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>',
+  help: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  arrow: '<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>',
+  back: '<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',
+  chev: '<polyline points="9 18 15 12 9 6"/>',
+  ext: '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>'
 };
-const icon = n => `<svg viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
-const flame = () => '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.5 2s5.5 4.4 5.5 10.2A6 6 0 0 1 12 18a6 6 0 0 1-6-5.8c0-2.2 1-3.9 2.2-5 .1 2 .9 3.2 2 3.7C9.6 7.8 10.6 4.3 12.5 2z"/><path d="M12 22a4 4 0 0 1-4-3.9c0-1.8 1.6-3 2.6-4 .3 1.2.8 1.8 1.6 2.2.9-.9 1.4-2 1.4-3.2A5 5 0 0 1 17 18a5 5 0 0 1-5 4z" opacity=".55"/></svg>';
+const icon = (n, c = '') => `<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+const flame = () => icon('flame');
 const NAV = [['home', 'Today', 'home'], ['learn', 'Learn', 'book'], ['practice', 'Practice', 'mic'], ['tips', 'Tips', 'zap'], ['review', 'Review', 'repeat'], ['journal', 'Journal', 'edit'], ['profile', 'Me', 'user']];
 
 /* ---------- router ---------- */
@@ -98,7 +108,7 @@ function render() {
   }
   const navHTML = NAV.map(([k, label, ic]) => { const on = view === k || (k === 'learn' && (view === 'course' || view === 'lesson')) || (k === 'tips' && view === 'toolkit'); return `<a href="#/${k}" class="${on ? 'on' : ''}" ${on ? 'aria-current="page"' : ''}>${icon(ic)}<span>${label}</span></a>`; }).join('');
   $('#nav').innerHTML = navHTML; $('#tabs').innerHTML = navHTML;
-  $('#chips').innerHTML = `<span class="tchip fire" title="Day streak">${flame()}${streakNow()}</span><span class="tchip" title="XP">⚡ ${S.xp}</span><button class="tchip icon" data-act="theme" aria-label="Change theme">◐</button><button class="tchip icon" data-act="help" aria-label="Keyboard shortcuts">?</button>`;
+  $('#chips').innerHTML = `<span class="tchip fire" title="Day streak">${flame()}${streakNow()}</span><span class="tchip" title="XP">${icon('zap')}${S.xp}</span><button class="tchip icon" data-act="theme" aria-label="Change theme">${icon('contrast')}</button><button class="tchip icon" data-act="help" aria-label="Keyboard shortcuts">${icon('help')}</button>`;
   const views = { home: homeView, learn: learnView, course: courseView, lesson: lessonView, practice: practiceView, tips: tipsView, toolkit: toolkitView, review: reviewView, journal: journalView, profile: profileView };
   main.innerHTML = (views[view] || homeView)(arg);
   window.scrollTo(0, 0);
@@ -115,24 +125,24 @@ function onboardView() {
   const dots = `<div class="dots">${[0, 1, 2, 3].map(i => `<i class="${i <= ob.step ? 'on' : ''}"></i>`).join('')}</div>`;
   let body = '';
   if (ob.step === 0) body = `
-    <h1 style="font-size:2.4rem">Your personal training plan</h1>
+    <h1>Your personal training plan</h1>
     <p class="lead">Built only for you. Tell me about yourself and I will shape the path around your skills, goals and time.</p>
     <label class="f" for="o-name">What should I call you?</label><input id="o-name" type="text" value="${esc(ob.name)}" autocomplete="given-name">
     <label class="f" for="o-role">What do you do now?</label><input id="o-role" type="text" value="${esc(ob.role)}" placeholder="e.g. support specialist, student, founder">
     <label class="f" for="o-goal">Your big goal</label><input id="o-goal" type="text" value="${esc(ob.goal)}" placeholder="e.g. ace interviews, lead meetings with confidence">
     <label class="f" for="o-notes">Your current skillset</label><textarea id="o-notes" placeholder="Strengths, tools, languages, anything that helps me match your level">${esc(ob.notes)}</textarea>`;
   if (ob.step === 1) body = `
-    <h1 style="font-size:2.4rem">What matters most?</h1><p class="lead">Pick any. These go to the top of your path.</p>
+    <h1>What matters most?</h1><p class="lead">Pick any. These go to the top of your path.</p>
     <div class="multi" data-nav>${Object.entries(SKILLS).map(([k, v]) => `<button type="button" data-act="obFocus" data-k="${k}" class="${ob.focus.includes(k) ? 'on' : ''}" aria-pressed="${ob.focus.includes(k)}">${v}</button>`).join('')}</div>
-    <h3 style="margin-top:26px">Daily goal</h3>
+    <h3 class="gap-l">Daily goal</h3>
     <div class="multi" data-nav>${GOALS.map(([x, n, d]) => `<button type="button" data-act="obGoal" data-x="${x}" class="${ob.xp === x ? 'on' : ''}" aria-pressed="${ob.xp === x}"><b>${n}</b><br><span class="muted small">${d}</span></button>`).join('')}</div>
     <label class="f" for="o-min">Time per day: <b id="o-min-v">${ob.minutes} min</b></label>
     <input id="o-min" type="range" min="5" max="90" step="5" value="${ob.minutes}" style="width:100%;accent-color:var(--accent)">`;
   if (ob.step === 2) body = `
-    <h1 style="font-size:2.4rem">Rate yourself honestly</h1><p class="lead">1 is just starting, 5 is excellent. This sets your baseline and your growth chart.</p>
+    <h1>Rate yourself honestly</h1><p class="lead">1 is just starting, 5 is excellent. This sets your baseline and your growth chart.</p>
     ${Object.entries(SKILLS).map(([k, v]) => `<div class="skill-row"><label for="s-${k}">${v}</label><input type="range" id="s-${k}" data-skill="${k}" min="1" max="5" value="${ob.skills[k]}"><b id="sv-${k}">${ob.skills[k]}</b></div>`).join('')}`;
   if (ob.step === 3) body = `
-    <h1 style="font-size:2.4rem">Anything else to learn?</h1><p class="lead">Add skills outside my courses, one per line. They live on the Learn page as your wishlist.</p>
+    <h1>Anything else to learn?</h1><p class="lead">Add skills outside my courses, one per line. They live on the Learn page as your wishlist.</p>
     <textarea id="o-wish" placeholder="e.g. Python&#10;Salary negotiation">${esc(ob.wish)}</textarea>`;
   return `<div class="onb">${dots}<div class="card">${body}
     <div class="row between" style="margin-top:26px">${ob.step > 0 ? '<button class="btn" data-act="obBack">Back</button>' : '<span></span>'}
@@ -147,11 +157,11 @@ function obRead() {
 /* ---------- shared widgets ---------- */
 function weekDots(light) {
   const names = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-  return `<div class="week ${light ? 'light' : ''}" role="img" aria-label="Last 7 days of activity">${[6, 5, 4, 3, 2, 1, 0].map(i => { const d = dateOff(-i), on = (S.days[dayStr(d)] || 0) > 0; return `<div class="${on ? 'on' : ''} ${i === 0 ? 'today' : ''}">${names[d.getDay()]}<b>${on ? '✓' : ''}</b></div>`; }).join('')}</div>`;
+  return `<div class="week ${light ? 'light' : ''}" role="img" aria-label="Last 7 days of activity">${[6, 5, 4, 3, 2, 1, 0].map(i => { const d = dateOff(-i), on = (S.days[dayStr(d)] || 0) > 0; return `<div class="${on ? 'on' : ''} ${i === 0 ? 'today' : ''}">${names[d.getDay()]}<b>${on ? icon('check') : ''}</b></div>`; }).join('')}</div>`;
 }
 function goalRing(size) {
   const pct = Math.min(1, todayXP() / S.goal), C = 2 * Math.PI * 52;
-  return `<div class="ring ${pct >= 1 ? 'full' : ''}" style="${size ? `width:${size}px;height:${size}px` : ''}"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="52" fill="none" stroke-width="11"/><circle class="val" cx="60" cy="60" r="52" fill="none" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct)}"/></svg><span><div>${pct >= 1 ? '✓' : todayXP()}<small>/ ${S.goal} XP</small></div></span></div>`;
+  return `<div class="ring ${pct >= 1 ? 'full' : ''}" style="${size ? `width:${size}px;height:${size}px` : ''}"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="52" fill="none" stroke-width="11"/><circle class="val" cx="60" cy="60" r="52" fill="none" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct)}"/></svg><span><div>${pct >= 1 ? icon('check') : todayXP()}<small>/ ${S.goal} XP</small></div></span></div>`;
 }
 const SHORT = { speaking: 'Speaking', articulation: 'Articulation', storytelling: 'Stories', listening: 'Listening', confidence: 'Confidence', persuasion: 'Persuasion', writing: 'Writing', learning: 'Learning', leadership: 'Leadership', interview: 'Interviews', fluency: 'Languages', tech: 'Tech/Biz' };
 function radar() {
@@ -177,42 +187,43 @@ function homeView() {
   const goalMsg = todayXP() >= S.goal ? 'Daily goal complete. Nice work!' : `${S.goal - todayXP()} XP to hit today's goal.`;
   return `
   <div class="hero"><p class="eyebrow">${new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-    <h1>${greet}${p.name ? ', <span class="grad">' + esc(p.name) + '</span>' : ''}.</h1>
+    <h1>${greet}${p.name ? ', ' + esc(p.name) : ''}.</h1>
     <p class="lead">${p.goal ? 'Your mission: ' + esc(p.goal) + '.' : 'Ready to level up?'}</p></div>
-  <div class="grid g2">
+  ${nl ? `<section class="card upnext"><div><p class="eyebrow">Today's reading · ${esc(nl.c.title)}</p><h2>${esc(nl.l.t)}</h2><p>${nl.l.mins} min · lesson ${nl.i + 1} of ${nl.c.lessons.length}</p></div><a class="btn lg" href="#/lesson/${nl.id}">Read lesson ${icon('arrow', 'end')}</a></section>` : ''}
+  <div class="grid g2 sec tight">
     <section class="card streak-card" aria-label="Streak">
       <div class="big">${flame()}${st}</div>
       <p><b>${st === 1 ? 'day' : 'days'} streak</b> ${S.streak.last === dayStr() ? '· safe for today' : '· train today to keep it'}</p>
       ${weekDots(false)}
-      <p class="small" style="margin-top:14px">❄ ${S.freezes} streak freeze${S.freezes === 1 ? '' : 's'} · earn one every 7 days · best ${S.streak.best || 0}</p>
+      <p class="small note">${icon('snow')} ${S.freezes} streak freeze${S.freezes === 1 ? '' : 's'} · earn one every 7 days · best ${S.streak.best || 0}</p>
     </section>
-    <section class="card row" style="gap:24px;flex-wrap:nowrap" aria-label="Daily goal">
+    <section class="card goal" aria-label="Daily goal">
       ${goalRing()}
-      <div><h2 style="font-size:1.4rem">Daily goal</h2><p class="muted">${goalMsg}</p><p class="small muted" style="margin:0">Level ${level()} · ${S.xp} XP · ${done}/${total} lessons</p></div>
+      <div><h2 class="h-card">Daily goal</h2><p class="muted">${goalMsg}</p><p class="small muted">Level ${level()} · ${S.xp} XP · ${done}/${total} lessons</p></div>
     </section>
   </div>
-  ${nl ? `<section class="card upnext sec" style="margin-top:16px"><div><p class="eyebrow">Today's reading · ${esc(nl.c.title)}</p><h2>${esc(nl.l.t)}</h2><p style="margin:0">${nl.l.mins} min · lesson ${nl.i + 1} of ${nl.c.lessons.length}</p></div><a class="btn lg" href="#/lesson/${nl.id}">Read lesson →</a></section>` : ''}
   ${dailyCard()}
-  <div class="grid g2 sec" style="margin-top:16px">
-    <section class="card"><h2 style="font-size:1.4rem">Today's plan</h2>
+  <div class="grid g2 sec tight">
+    <section class="card"><h2 class="h-card">Today's plan</h2>
       <ul class="plan" data-nav>
         <li><a href="#/practice"><span class="ico">${icon('mic')}</span><span><b>Speak for 60 seconds</b><small>Mock interview or small-talk prompt</small></span></a></li>
-        <li><a href="#/review"><span class="ico">${icon('repeat')}</span><span><b>Review ${due} card${due === 1 ? '' : 's'}</b><small>${due ? 'Spaced repetition due now' : 'You are caught up'}</small></span>${due ? '' : '<span class="tick">✓</span>'}</a></li>
+        <li><a href="#/review"><span class="ico">${icon('repeat')}</span><span><b>Review ${due} card${due === 1 ? '' : 's'}</b><small>${due ? 'Spaced repetition due now' : 'You are caught up'}</small></span>${due ? '' : `<span class="tick">${icon('check')}</span>`}</a></li>
         <li><a href="#/journal"><span class="ico">${icon('edit')}</span><span><b>Reflect for 2 minutes</b><small>${esc(journalPrompt())}</small></span></a></li>
         <li><a href="#/tips"><span class="ico">${icon('zap')}</span><span><b>Tip of the day</b><small>${esc(tip.text)}</small></span></a></li>
       </ul></section>
-    <section class="card"><h2 style="font-size:1.4rem">Your skill map</h2>${radar()}</section>
+    <section class="card"><h2 class="h-card">Your skill map</h2>${radar()}</section>
   </div>
-  <section class="sec"><div class="row between"><h2>Your path</h2><a href="#/learn">All courses →</a></div>
+  <section class="sec"><div class="row between"><h2>Continue your path</h2><a class="link" href="#/learn">All courses ${icon('arrow', 'end')}</a></div>
     <div class="grid g3" data-nav>${orderedCourses().slice(0, 3).map(courseCard).join('')}</div></section>`;
 }
 
 /* ---------- learn catalog ---------- */
 function courseCard(c) {
   const d = courseDone(c), t = c.lessons.length, rec = S.profile && S.profile.focus.includes(c.skill);
-  return `<a class="card course" style="--h:${c.hue}" href="#/course/${c.id}">
-    <div class="top-row"><span class="badge">${esc(c.title[0])}</span>${rec ? '<span class="pill">Your focus</span>' : `<span class="pill gray">${c.cat}</span>`}</div>
-    <h3>${esc(c.title)}</h3><p class="muted small" style="margin:0">${esc(c.blurb)}</p>
+  const nx = c.lessons.find((_, i) => !S.done[lessonId(c, i)]);
+  return `<a class="card course" href="#/course/${c.id}">
+    ${rec ? '<span class="focus">Your focus</span>' : ''}<h3>${esc(c.title)}</h3><p class="muted small">${esc(c.blurb)}</p>
+    <p class="next small">${nx ? `<span class="muted">Next:</span> ${esc(nx.t)}` : 'All lessons complete'}</p>
     <div class="meta"><div class="bar"><i style="width:${d / t * 100}%"></i></div><span class="small muted">${d}/${t} · ${courseMins(c)} min</span></div></a>`;
 }
 let learnFilter = 'All', learnQuery = '';
@@ -223,8 +234,8 @@ function catalogHTML() {
 }
 function learnView() {
   const cats = ['All', ...new Set(courses.map(c => c.cat))];
-  return `<div class="hero"><p class="eyebrow">Catalog</p><h1>Learn</h1><p class="lead">${courses.length} courses and ${allLessons.length} lessons, ordered for you. Press <kbd>/</kbd> to search.</p></div>
-  <div class="toolbar"><div class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg><input type="search" id="catQ" placeholder="Search courses and lessons" aria-label="Search courses" value="${esc(learnQuery)}"></div>
+  return `<div class="hero"><h1>Every course, ordered for your goals</h1><p class="lead">${courses.length} courses and ${allLessons.length} lessons. The ones that match your focus come first.</p></div>
+  <div class="toolbar"><div class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg><input type="search" id="catQ" placeholder="Search courses and lessons (press /)" aria-label="Search courses" value="${esc(learnQuery)}"></div>
     <div class="chips" data-nav role="group" aria-label="Category">${cats.map(c => `<button class="chip ${c === learnFilter ? 'on' : ''}" data-act="filterLearn" data-v="${c}" aria-pressed="${c === learnFilter}">${c}</button>`).join('')}</div></div>
   <div class="grid g3" id="catalog" data-nav>${catalogHTML()}</div>
   <section class="sec"><h2>Your wishlist</h2><div class="card">
@@ -238,8 +249,8 @@ function courseView(id) {
   <div class="course-hero"><div style="max-width:640px"><p class="eyebrow">${c.cat} · ${c.lessons.length} lessons · ${courseMins(c)} min</p><h1>${esc(c.title)}</h1><p class="lead">${esc(c.blurb)}</p>
     <div class="bar" style="max-width:320px"><i style="width:${d / c.lessons.length * 100}%"></i></div><p class="small muted" style="margin-top:6px">${d} of ${c.lessons.length} complete</p></div>
     <a class="btn primary lg" href="#/lesson/${lessonId(c, nxt < 0 ? 0 : nxt)}">${d === 0 ? 'Start course' : nxt < 0 ? 'Review course' : 'Continue'}</a></div>
-  <p class="small muted">Use <kbd>↑</kbd> <kbd>↓</kbd> to move and <kbd>Enter</kbd> to open a lesson.</p>
-  <ul class="lessons" data-nav>${c.lessons.map((l, i) => { const dn = S.done[lessonId(c, i)]; return `<li><a href="#/lesson/${lessonId(c, i)}"><span class="num ${dn ? 'done' : ''}">${dn ? '✓' : i + 1}</span><span style="flex:1"><b>${esc(l.t)}</b><br><span class="muted small">${l.mins} min${dn && dn.answered ? ` · quiz ${dn.correct}/${dn.total}` : ''}</span></span><span aria-hidden="true" class="muted">›</span></a></li>`; }).join('')}</ul>`;
+  <p class="small muted kbhint">Use <kbd>↑</kbd> <kbd>↓</kbd> to move and <kbd>Enter</kbd> to open a lesson.</p>
+  <ul class="lessons" data-nav>${c.lessons.map((l, i) => { const dn = S.done[lessonId(c, i)]; return `<li><a href="#/lesson/${lessonId(c, i)}"><span class="num ${dn ? 'done' : ''}">${dn ? icon('check') : i + 1}</span><span class="grow"><b>${esc(l.t)}</b><br><span class="muted small">${l.mins} min${dn && dn.answered ? ` · quiz ${dn.correct}/${dn.total}` : ''}</span></span><span class="muted">${icon('chev')}</span></a></li>`; }).join('')}</ul>`;
 }
 
 /* ---------- lesson reading page ---------- */
@@ -250,26 +261,26 @@ function lessonView(id) {
   const prev = i > 0 ? lessonId(c, i - 1) : null, next = i < c.lessons.length - 1 ? lessonId(c, i + 1) : null;
   const toc = [['overview', 'Overview'], l.flow && ['picture', 'Big picture'], ['ideas', 'Key ideas'], d.sections && ['deeper', 'Go deeper'], d.script && ['script', 'Example script'], d.mistakes && ['mistakes', 'Common mistakes'], ['tips', 'Pro tips'], l.mentor && ['mentor', "Mentor's corner"], ['activities', 'Activities'], d.plan && ['plan', '7-day plan'], ['quiz', 'Quiz']].filter(Boolean);
   const b = L.banner;
-  const banner = b ? `<div class="banner" role="status"><div><b style="font-size:1.4rem">${b.first ? 'Lesson complete!' : 'Marked again'} +${b.xp} XP</b><p style="margin:4px 0 0">${b.extended ? `🔥 Streak extended to ${S.streak.count} day${S.streak.count === 1 ? '' : 's'}! ` : 'Streak is safe for today. '}${b.goalHit ? '🎯 Daily goal reached!' : todayXP() >= S.goal ? 'Daily goal complete.' : `${S.goal - todayXP()} XP to your daily goal.`}</p></div>${weekDots(false)}</div>` : '';
+  const banner = b ? `<div class="banner" role="status"><div><b class="h-card">${b.first ? 'Lesson complete' : 'Marked again'} · +${b.xp} XP</b><p>${b.extended ? `Streak extended to ${S.streak.count} day${S.streak.count === 1 ? '' : 's'}. ` : 'Streak is safe for today. '}${b.goalHit ? 'Daily goal reached.' : todayXP() >= S.goal ? 'Daily goal complete.' : `${S.goal - todayXP()} XP to your daily goal.`}</p></div>${weekDots(false)}</div>` : '';
   return `<div class="crumb"><a href="#/learn">Learn</a> / <a href="#/course/${c.id}">${esc(c.title)}</a> / Lesson ${i + 1} of ${c.lessons.length}</div>
   <div class="reader">
     <aside class="toc" aria-label="On this page"><p class="eyebrow">On this page</p>${toc.map(([k, t]) => `<button data-act="jump" data-to="sec-${k}">${t}</button>`).join('')}
       <p class="small muted" style="margin:14px 12px 0"><kbd>n</kbd> next · <kbd>p</kbd> previous<br><kbd>Esc</kbd> back to course</p></aside>
     <article class="doc">
       ${banner}
-      <section id="sec-overview"><p class="eyebrow">${esc(c.title)} · ${l.mins} min read ${done ? '· ✓ completed' : ''}</p><h1>${esc(l.t)}</h1><p class="intro">${esc(l.intro)}</p></section>
-      ${l.flow ? `<section id="sec-picture"><h2>The big picture</h2><div class="flow" role="img" aria-label="Steps: ${esc(l.flow.join(', then '))}">${l.flow.map((f, k) => `${k ? '<span class="arrow" aria-hidden="true">→</span>' : ''}<span class="step"><i>${k + 1}</i>${esc(f)}</span>`).join('')}</div></section>` : ''}
+      <section id="sec-overview"><p class="eyebrow">${esc(c.title)} · ${l.mins} min read ${done ? '· Completed' : ''}</p><h1>${esc(l.t)}</h1><p class="intro">${esc(l.intro)}</p></section>
+      ${l.flow ? `<section id="sec-picture"><h2>The big picture</h2><div class="flow" role="img" aria-label="Steps: ${esc(l.flow.join(', then '))}">${l.flow.map((f, k) => `${k ? `<span class="arrow">${icon('arrow')}</span>` : ''}<span class="step"><i>${k + 1}</i>${esc(f)}</span>`).join('')}</div></section>` : ''}
       <section id="sec-ideas"><h2>Key ideas</h2><div class="stack">${l.points.map(([h, p]) => `<div class="idea"><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join('')}</div></section>
       ${d.sections ? `<section id="sec-deeper" class="prose"><h2>Go deeper</h2>${d.sections.map(([h, ps]) => `<h3>${esc(h)}</h3>${ps.map(p => `<p>${esc(p)}</p>`).join('')}`).join('')}</section>` : ''}
       ${d.script ? `<section id="sec-script"><h2>Example script</h2><p class="muted small">${esc(d.script[0])}. Read it aloud, then say your own version.</p><div class="script">${d.script[1].map(([w, t]) => `<div class="line ${w === 'You' ? 'me' : ''}"><b>${esc(w)}</b><span>${esc(t)}</span></div>`).join('')}</div></section>` : ''}
       ${d.mistakes ? `<section id="sec-mistakes"><h2>Common mistakes</h2><ul class="mistakes">${d.mistakes.map(m => `<li>${esc(m)}</li>`).join('')}</ul></section>` : ''}
       <section id="sec-tips"><h2>Pro tips</h2><div class="tipbox"><ul>${l.tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div></section>
       ${l.mentor ? `<section id="sec-mentor" class="mentor"><h2>Mentor's corner</h2><div class="mhack"><span class="mtag">Real-world hack</span><p>${esc(l.mentor.hack)}</p></div>${l.mentor.world ? `<div class="mworld"><span class="mtag">Across clients and cultures</span><ul>${l.mentor.world.split(' | ').map(w => { const k = w.indexOf(':'); return k > 0 && k < 16 ? `<li><b>${esc(w.slice(0, k))}</b>${esc(w.slice(k + 1))}</li>` : `<li>${esc(w)}</li>`; }).join('')}</ul></div>` : ''}</section>` : ''}
-      <section id="sec-activities"><h2>Activities: ${esc(l.ex.t)}</h2><div class="exbox">${l.ex.steps.map((t, k) => `<label class="check"><input type="checkbox" data-act="exTick" data-id="${id}" data-k="${k}" ${exs[k] ? 'checked' : ''}><span>${esc(t)}</span></label>`).join('')}</div><p style="margin-top:14px"><a class="btn" href="#/practice" target="_blank" rel="noopener">Open the speaking studio ↗</a></p></section>
+      <section id="sec-activities"><h2>Activities: ${esc(l.ex.t)}</h2><div class="exbox">${l.ex.steps.map((t, k) => `<label class="check"><input type="checkbox" data-act="exTick" data-id="${id}" data-k="${k}" ${exs[k] ? 'checked' : ''}><span>${esc(t)}</span></label>`).join('')}</div><p style="margin-top:14px"><a class="btn" href="#/practice" target="_blank" rel="noopener">Open the speaking studio ${icon('ext', 'end')}</a></p></section>
       ${d.plan ? `<section id="sec-plan"><h2>7-day practice plan</h2><ol class="planlist">${d.plan.map(p => `<li>${esc(p)}</li>`).join('')}</ol></section>` : ''}
       <section id="sec-quiz"><h2>Check yourself</h2>${l.quiz.map((q, k) => `<div class="q" data-q="${k}" data-ans="${q.a}"><b>${esc(q.q)}</b>${q.o.map((o, j) => `<button class="opt" data-act="qpick" data-k="${k}" data-j="${j}">${esc(o)}</button>`).join('')}<div class="why" hidden>${esc(q.w)}</div></div>`).join('')}</section>
-      <section class="card completebox"><div><b style="font-size:1.2rem">${done ? 'Completed ✓' : 'Finished reading?'}</b><p class="muted small" style="margin:4px 0 0">${done ? 'Come back any time to reread. Marking again earns a little XP.' : 'Mark it complete to earn XP and extend your streak. Activities and quiz answers add bonus XP.'}</p></div><button class="btn good lg" data-act="complete">${done ? 'Mark again (+5 XP)' : 'Mark as complete'}</button></section>
-      <div class="row between" style="margin-top:20px">${prev ? `<a class="btn" href="#/lesson/${prev}">← Previous</a>` : '<span></span>'}${next ? `<a class="btn primary" href="#/lesson/${next}">Next lesson →</a>` : `<a class="btn primary" href="#/course/${c.id}">Back to course</a>`}</div>
+      <section class="card completebox"><div><b class="h-card">${done ? 'Completed' : 'Finished reading?'}</b><p class="muted small">${done ? 'Come back any time to reread. Marking again earns a little XP.' : 'Mark it complete to earn XP and extend your streak. Activities and quiz answers add bonus XP.'}</p></div><button class="btn good lg" data-act="complete">${done ? 'Mark again (+5 XP)' : 'Mark as complete'}</button></section>
+      <div class="row between" style="margin-top:20px">${prev ? `<a class="btn ghost" href="#/lesson/${prev}">${icon('back', 'start')} Previous</a>` : '<span></span>'}${next ? `<a class="btn primary" href="#/lesson/${next}">Next lesson ${icon('arrow', 'end')}</a>` : `<a class="btn primary" href="#/course/${c.id}">Back to course</a>`}</div>
     </article></div>`;
 }
 function qPick(btn) {
@@ -287,14 +298,8 @@ function completeLesson() {
   S.done[id] = { ts: Date.now(), correct: Math.max(correct, old?.correct || 0), total: qs.length, answered: Math.max(answered, old?.answered || 0) };
   qs.forEach((_, k) => { const cid = `${id}.q${k}`; if (!S.cards[cid]) S.cards[cid] = { box: 0, due: addDays(1) }; });
   L.banner = Object.assign(touch(xp), { xp, first });
-  if (first) confetti();
-  if (L.banner.extended && S.streak.count % 7 === 0) toast('7-day streak! You earned a streak freeze ❄');
+  if (L.banner.extended && S.streak.count % 7 === 0) toast('7-day streak. You earned a streak freeze.');
   render();
-}
-function confetti() {
-  const box = document.createElement('div'); box.className = 'confetti'; box.setAttribute('aria-hidden', 'true');
-  box.innerHTML = Array.from({ length: 36 }, () => `<i style="left:${Math.random() * 100}%;background:hsl(${Math.random() * 360} 85% 60%);animation-delay:${Math.random() * .8}s;animation-duration:${2 + Math.random() * 1.6}s"></i>`).join('');
-  document.body.appendChild(box); setTimeout(() => box.remove(), 4500);
 }
 function lessonStep(dir) {
   const { c, i } = L.x, j = i + dir;
@@ -311,7 +316,7 @@ function dailyCard() {
   const p = dailyPick(), t = dayStr();
   if (S.daily.date !== t) S.daily = { date: t, checked: [] };
   const ck = S.daily.checked, all = p.l.ex.steps.every((_, k) => ck[k]);
-  return `<section class="card sec" style="margin-top:16px"><div class="row between"><div><p class="eyebrow">Daily activity</p><h2 style="font-size:1.4rem">${esc(p.l.ex.t)}</h2></div><span class="pill ${all ? 'good' : ''}">${all ? 'Done ✓' : '+15 XP'}</span></div>
+  return `<section class="card sec tight"><div class="row between"><div><p class="eyebrow">Daily activity</p><h2 class="h-card">${esc(p.l.ex.t)}</h2></div><span class="status ${all ? 'ok' : ''}">${all ? icon('check') + ' Done' : '+15 XP'}</span></div>
     <p class="muted small">From “${esc(p.l.t)}” · ${esc(p.c.title)}</p>
     ${p.l.ex.steps.map((s, k) => `<label class="check"><input type="checkbox" data-act="dailyTick" data-k="${k}" ${ck[k] ? 'checked' : ''}><span>${esc(s)}</span></label>`).join('')}</section>`;
 }
@@ -324,11 +329,11 @@ const rnd = a => a[Math.floor(Math.random() * a.length)];
 const sets = () => window.PROMPT_SETS || { Impromptu: window.PROMPTS };
 const nextPrompt = () => rnd(sets()[P.kind] || window.PROMPTS);
 function practiceView() {
-  return `<div class="hero"><p class="eyebrow">Speaking studio</p><h1>Practice out loud</h1><p class="lead">Mock interviews, small talk and pitches. Recordings stay in your browser and are never uploaded.</p></div>
+  return `<div class="hero"><h1>Speak for a minute, then hear yourself</h1><p class="lead">Mock interviews, small talk and pitches. Recordings stay in your browser and are never uploaded.</p></div>
   <section class="card studio" id="studio"></section>
-  <div class="grid g2 sec" style="margin-top:16px">
-    <section class="card"><h2 style="font-size:1.4rem">Warm up your voice</h2><div id="twister"></div></section>
-    <section class="card" style="text-align:center"><h2 style="font-size:1.4rem">Box breathing</h2><p class="muted small">Inhale 4 · hold 4 · exhale 4 · hold 4</p><div class="breath" id="breath">Ready</div><button class="btn" data-act="breathe" id="breathBtn">Start</button></section>
+  <div class="grid g2 sec tight">
+    <section class="card"><h2 class="h-card">Warm up your voice</h2><div id="twister"></div></section>
+    <section class="card" style="text-align:center"><h2 class="h-card">Box breathing</h2><p class="muted small">Inhale 4 · hold 4 · exhale 4 · hold 4</p><div class="breath" id="breath">Ready</div><button class="btn" data-act="breathe" id="breathBtn">Start</button></section>
   </div>
   <section class="sec"><h2>Past sessions</h2><div class="card">${S.sessions.length ? S.sessions.slice(0, 8).map(s => `<div class="entry"><div class="row between"><b>${esc(s.prompt)}</b><span class="muted small">${esc(s.date)}</span></div><div class="muted small">${s.secs}s${s.wpm ? ` · ${s.wpm} wpm` : ''}${s.fillers != null ? ` · ${s.fillers} fillers` : ''}${s.score != null ? ` · self-score ${s.score}/4` : ''}</div></div>`).join('') : '<p class="empty">No sessions yet. Do your first one above.</p>'}</div></section>`;
 }
@@ -349,11 +354,12 @@ function renderStudio() {
     const low = P.text.toLowerCase(), fill = words ? FILLERS.reduce((n, r) => n + (low.match(r) || []).length, 0) : null;
     P.stats = { wpm, fillers: fill };
     const pace = wpm == null ? '' : wpm < 110 ? 'A little slow. Fine if you are pausing on purpose.' : wpm <= 170 ? 'Great pace.' : 'Fast. Add pauses.';
-    el.innerHTML = `<h2>Nice work! ${P.elapsed}s of speaking</h2>
+    el.innerHTML = `<h2>${P.elapsed} seconds of speaking</h2>
       <div class="metrics"><div class="metric"><b>${P.elapsed}s</b><span class="muted small">Time</span></div>
       <div class="metric"><b>${wpm ?? '–'}</b><span class="muted small">Words / min</span></div>
       <div class="metric"><b>${fill ?? '–'}</b><span class="muted small">Filler words</span></div></div>
       ${wpm != null ? `<p>${pace}</p>` : `<p class="muted small">${SR ? 'No speech detected, so there are no stats this time.' : 'Live transcript needs Chrome or Edge, so use the self-review below.'}</p>`}
+      ${P.mic && !P.url && !P.text ? '<p class="muted small loading" aria-busy="true">Preparing your recording</p>' : ''}
       ${P.text ? `<div class="transcript">${esc(P.text)}</div>` : ''}
       ${P.url ? `<audio controls src="${P.url}"></audio>` : ''}
       <div style="text-align:left;max-width:420px;margin:18px auto 0"><b>Self-review</b>
@@ -364,6 +370,7 @@ function renderStudio() {
 const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 async function startStudio() {
   const sel = $('#durSel'); if (sel) P.dur = +sel.value;
+  const go1 = $('[data-act="startStudio"]'); if (go1) { go1.disabled = true; go1.classList.add('busy'); go1.setAttribute('aria-busy', 'true'); go1.textContent = 'Waiting for microphone'; }
   P.text = ''; P.chunks = []; P.url = ''; P.review = {}; P.mic = false;
   try {
     if (navigator.mediaDevices?.getUserMedia && window.MediaRecorder) {
@@ -438,12 +445,12 @@ let tipFilter = 'All', tipQuery = '';
 function tipList() {
   const q = tipQuery.toLowerCase();
   const list = allTips().filter(t => (tipFilter === 'All' || (tipFilter === 'Saved' ? S.favs.includes(t.id) : t.cat === tipFilter)) && (!q || (t.text + t.src).toLowerCase().includes(q)));
-  return list.length ? list.map(t => `<div class="card tip"><div><div>${esc(t.text)}</div><div class="muted small">${esc(t.src || 'Quick win')}</div></div><button class="star ${S.favs.includes(t.id) ? 'on' : ''}" data-act="fav" data-id="${t.id}" aria-label="Save tip" aria-pressed="${S.favs.includes(t.id)}">${S.favs.includes(t.id) ? '★' : '☆'}</button></div>`).join('') : '<p class="empty">No tips match.</p>';
+  return list.length ? list.map(t => `<div class="card tip"><div><div>${esc(t.text)}</div><div class="muted small">${esc(t.src || 'Quick win')}</div></div><button class="star ${S.favs.includes(t.id) ? 'on' : ''}" data-act="fav" data-id="${t.id}" aria-label="Save tip" aria-pressed="${S.favs.includes(t.id)}">${icon('star')}</button></div>`).join('') : '<p class="empty">No tips match.</p>';
 }
 function tipsView() {
   const cats = ['All', 'Saved', 'Quick wins', ...new Set(courses.map(c => c.cat))];
-  return `<div class="hero"><p class="eyebrow">Library</p><h1>Tips</h1><p class="lead">Small, high-leverage ideas. Star the ones to reread. Press <kbd>/</kbd> to search.</p><p><a class="btn primary" href="#/toolkit">Open the Toolkit: templates and scripts →</a></p></div>
-  <div class="toolbar"><div class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg><input type="search" id="tipQ" placeholder="Search tips" aria-label="Search tips" value="${esc(tipQuery)}"></div>
+  return `<div class="hero"><h1>Small ideas you can use on your next call</h1><p class="lead">Star the ones worth rereading.</p><p><a class="btn primary" href="#/toolkit">Open the Toolkit ${icon('arrow', 'end')}</a></p></div>
+  <div class="toolbar"><div class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg><input type="search" id="tipQ" placeholder="Search tips (press /)" aria-label="Search tips" value="${esc(tipQuery)}"></div>
   <div class="chips" id="tipChips" data-nav>${cats.map(c => `<button class="chip ${c === tipFilter ? 'on' : ''}" data-act="filterTip" data-v="${c}">${c}</button>`).join('')}</div></div>
   <div class="grid" id="tiplist">${tipList()}</div>`;
 }
@@ -454,12 +461,12 @@ let tkFilter = 'All', tkQuery = '';
 function tkList() {
   const q = tkQuery.toLowerCase();
   const list = TK().map((t, i) => ({ ...t, i })).filter(t => (tkFilter === 'All' || t.cat === tkFilter) && (!q || (t.t + ' ' + t.text + ' ' + t.when).toLowerCase().includes(q)));
-  return list.length ? list.map(t => `<article class="card tpl"><div class="row between"><h3>${esc(t.t)}</h3><span class="tchip">${esc(t.cat)}</span></div><p class="muted small">${esc(t.when)}</p><pre class="tplbox">${esc(t.text)}</pre><button class="btn" data-act="copyTk" data-i="${t.i}">Copy</button></article>`).join('') : '<p class="muted">Nothing matches. Try another word.</p>';
+  return list.length ? list.map(t => `<article class="card tpl"><div class="row between"><h3>${esc(t.t)}</h3>${tkFilter === 'All' ? `<span class="small muted">${esc(t.cat)}</span>` : ''}</div><p class="muted small">${esc(t.when)}</p><pre class="tplbox">${esc(t.text)}</pre><button class="btn tint" data-act="copyTk" data-i="${t.i}">Copy</button></article>`).join('') : '<p class="muted">Nothing matches. Try another word.</p>';
 }
 function toolkitView() {
   const cats = ['All', ...new Set(TK().map(t => t.cat))];
-  return `<div class="hero"><p class="eyebrow">Library</p><h1>Toolkit</h1><p class="lead">Copy-ready emails, call scripts, interview answers and phrase banks. Change the [brackets], make them sound like you. Press <kbd>/</kbd> to search.</p></div>
-  <div class="toolbar"><div class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg><input type="search" id="tkQ" placeholder="Search the toolkit" aria-label="Search the toolkit" value="${esc(tkQuery)}"></div>
+  return `<div class="hero"><h1>Emails, scripts and answers to copy and send</h1><p class="lead">Change the [brackets] and make each one sound like you.</p></div>
+  <div class="toolbar"><div class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg><input type="search" id="tkQ" placeholder="Search the toolkit (press /)" aria-label="Search the toolkit" value="${esc(tkQuery)}"></div>
   <div class="chips" id="tkChips" data-nav>${cats.map(c => `<button class="chip ${c === tkFilter ? 'on' : ''}" data-act="filterTk" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div></div>
   <div class="grid" id="tklist">${tkList()}</div>`;
 }
@@ -469,10 +476,10 @@ const INTERVALS = [1, 2, 4, 8, 16, 32];
 function questionFor(cid) { const [c, i, q] = cid.split('.'); const l = courseById(c)?.lessons[+i]; const qq = l?.quiz[+(q || 'q0').slice(1)]; return qq && { q: qq, title: l.t }; }
 function nextDue() { const ds = Object.values(S.cards).map(c => c.due).sort(); return ds[0] > dayStr() ? 'on ' + ds[0] : 'soon'; }
 function reviewView() {
-  const head = '<div class="hero"><p class="eyebrow">Spaced repetition</p><h1>Review</h1>';
+  const due0 = dueCards().length, head = `<div class="hero"><h1>${!Object.keys(S.cards).length ? 'Your review starts after your first lesson' : due0 ? 'Questions due before you forget' : 'Nothing due right now'}</h1>`;
   if (!Object.keys(S.cards).length) return `${head}<p class="lead">Finish a lesson and its quiz questions will come back just before you would forget them.</p></div><a class="btn primary lg" href="#/learn">Start learning</a>`;
   const due = dueCards();
-  if (!due.length) return `${head}<p class="lead">All caught up 🎉 ${Object.keys(S.cards).length} cards in rotation. Next ones are due ${nextDue()}.</p></div>`;
+  if (!due.length) return `${head}<p class="lead">You are caught up. ${Object.keys(S.cards).length} cards in rotation. Next ones are due ${nextDue()}.</p></div>`;
   const cid = due[0], { q, title } = questionFor(cid);
   return `${head}<p class="lead">${due.length} due · from “${esc(title)}”. Use <kbd>1</kbd>–<kbd>4</kbd> to answer.</p></div><div class="card" data-cid="${cid}" data-ans="${q.a}" id="rq" style="max-width:680px"><h2 style="font-size:1.5rem">${esc(q.q)}</h2><div>${q.o.map((o, j) => `<button class="opt" data-act="reviewAns" data-j="${j}"><kbd>${j + 1}</kbd><span>${esc(o)}</span></button>`).join('')}</div><div class="card flat why" hidden style="margin-top:14px">${esc(q.w)}</div></div><div id="revNext" style="margin-top:16px"></div>`;
 }
@@ -492,7 +499,7 @@ function reviewAnswer(j) {
 /* ---------- journal ---------- */
 const journalPrompt = () => window.JOURNAL_PROMPTS[new Date().getDate() % window.JOURNAL_PROMPTS.length];
 function journalView() {
-  return `<div class="hero"><p class="eyebrow">Reflect</p><h1>Journal</h1><p class="lead">Reflection turns practice into progress.</p></div>
+  return `<div class="hero"><h1>What did you notice today?</h1><p class="lead">Two minutes of reflection turns practice into progress.</p></div>
   <form class="card" data-form="journal"><label class="f" for="jt" style="margin-top:0">${esc(journalPrompt())}</label><textarea id="jt" placeholder="Write freely…"></textarea><div class="row between" style="margin-top:12px"><span class="muted small">Private, saved in this browser</span><button class="btn primary">Save entry (+10 XP)</button></div></form>
   <section class="sec"><h2>Past entries</h2><div class="card">${S.journal.length ? S.journal.map(j => `<div class="entry"><div class="row between"><b class="small muted">${esc(j.date)} · ${esc(j.prompt)}</b><button class="btn ghost danger" data-act="delJ" data-id="${j.id}" aria-label="Delete entry">Delete</button></div><p style="margin:6px 0 0;white-space:pre-wrap">${esc(j.text)}</p></div>`).join('') : '<p class="empty">Nothing yet.</p>'}</div></section>`;
 }
@@ -500,23 +507,23 @@ function journalView() {
 /* ---------- profile ---------- */
 function profileView() {
   const p = S.profile;
-  return `<div class="hero"><p class="eyebrow">Profile</p><h1>Me</h1></div>
-  <div class="grid g2"><section class="card streak-card"><div class="big">${flame()}${streakNow()}</div><p><b>day streak</b> · best ${S.streak.best || 0} · ❄ ${S.freezes} freeze${S.freezes === 1 ? '' : 'es'}</p>${weekDots(false)}</section>
-  <section class="card"><h2 style="font-size:1.4rem">Daily goal</h2><div class="multi" data-nav>${GOALS.map(([x, n, d]) => `<button type="button" data-act="setGoal" data-x="${x}" class="${S.goal === x ? 'on' : ''}" aria-pressed="${S.goal === x}"><b>${n}</b><br><span class="muted small">${d}</span></button>`).join('')}</div>
-  <p class="muted small" style="margin-top:14px">Level ${level()} · ${S.xp} XP · ${Object.keys(S.done).length}/${allLessons.length} lessons · ${S.sessions.length} speaking sessions · ${S.journal.length} journal entries</p></section></div>
-  <form class="card sec" style="margin-top:16px" data-form="profile">
-    <h2 style="font-size:1.4rem">Your details</h2>
+  return `<div class="hero"><h1>Your progress and settings</h1></div>
+  <div class="grid g2"><section class="card streak-card"><div class="big">${flame()}${streakNow()}</div><p><b>day streak</b> · best ${S.streak.best || 0} · ${icon('snow')} ${S.freezes} freeze${S.freezes === 1 ? '' : 'es'}</p>${weekDots(false)}</section>
+  <section class="card"><h2 class="h-card">Daily goal</h2><div class="multi" data-nav>${GOALS.map(([x, n, d]) => `<button type="button" data-act="setGoal" data-x="${x}" class="${S.goal === x ? 'on' : ''}" aria-pressed="${S.goal === x}"><b>${n}</b><br><span class="muted small">${d}</span></button>`).join('')}</div>
+  <p class="muted small note">Level ${level()} · ${S.xp} XP · ${Object.keys(S.done).length}/${allLessons.length} lessons · ${S.sessions.length} speaking sessions · ${S.journal.length} journal entries</p></section></div>
+  <form class="card sec tight" data-form="profile">
+    <h2 class="h-card">Your details</h2>
     <label class="f" for="p-name" style="margin-top:0">Name</label><input id="p-name" type="text" value="${esc(p.name)}">
     <label class="f" for="p-role">What I do</label><input id="p-role" type="text" value="${esc(p.role)}">
     <label class="f" for="p-goal">Big goal</label><input id="p-goal" type="text" value="${esc(p.goal)}">
     <label class="f" for="p-notes">My skillset</label><textarea id="p-notes">${esc(p.notes)}</textarea>
     <label class="f" for="p-min">Daily minutes: <b id="p-min-v">${p.minutes}</b></label><input id="p-min" type="range" min="5" max="90" step="5" value="${p.minutes}" style="width:100%;accent-color:var(--accent)">
-    <h3 style="margin-top:22px">Focus areas</h3><div class="multi" data-nav>${Object.entries(SKILLS).map(([k, v]) => `<button type="button" data-act="pFocus" data-k="${k}" class="${p.focus.includes(k) ? 'on' : ''}" aria-pressed="${p.focus.includes(k)}">${v}</button>`).join('')}</div>
-    <h3 style="margin-top:22px">Self-ratings (baseline)</h3>
+    <h3 class="gap-l">Focus areas</h3><div class="multi" data-nav>${Object.entries(SKILLS).map(([k, v]) => `<button type="button" data-act="pFocus" data-k="${k}" class="${p.focus.includes(k) ? 'on' : ''}" aria-pressed="${p.focus.includes(k)}">${v}</button>`).join('')}</div>
+    <h3 class="gap-l">Self-ratings (baseline)</h3>
     ${Object.entries(SKILLS).map(([k, v]) => `<div class="skill-row"><label for="ps-${k}">${v}</label><input type="range" id="ps-${k}" data-skill="${k}" min="1" max="5" value="${p.skills[k]}"><b id="sv-${k}">${p.skills[k]}</b></div>`).join('')}
     <div class="row" style="margin-top:16px"><button class="btn primary">Save changes</button></div>
   </form>
-  <section class="card sec" style="margin-top:16px"><h2 style="font-size:1.4rem">Settings</h2><div class="row"><button class="btn" data-act="theme">Theme: ${S.theme}</button><button class="btn" data-act="export">Export my data</button><button class="btn danger" data-act="reset">Reset everything</button></div></section>`;
+  <section class="card sec tight"><h2 class="h-card">Settings</h2><div class="row"><button class="btn" data-act="theme">Theme: ${S.theme}</button><button class="btn" data-act="export">Export my data</button><button class="btn danger" data-act="reset">Reset everything</button></div></section>`;
 }
 
 /* ---------- events ---------- */
@@ -536,7 +543,7 @@ const actions = {
   setGoal(el) { S.goal = +el.dataset.x; save(); render(); },
   filterLearn(el) { learnFilter = el.dataset.v; $$('.chip', el.parentNode).forEach(c => { c.classList.toggle('on', c === el); c.setAttribute('aria-pressed', c === el); }); $('#catalog').innerHTML = catalogHTML(); },
   filterTk(el) { tkFilter = el.dataset.v; $$('#tkChips .chip').forEach(c => c.classList.toggle('on', c === el)); $('#tklist').innerHTML = tkList(); },
-  copyTk(el) { const it = TK()[+el.dataset.i], done = () => toast('Copied. Edit the [brackets] before you send.'); const fb = () => { const ta = document.createElement('textarea'); ta.value = it.text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch { toast('Select the text and copy it by hand.'); } ta.parentNode.removeChild(ta); }; navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(it.text).then(done, fb) : fb(); },
+  copyTk(el) { const it = TK()[+el.dataset.i], done = () => { el.innerHTML = icon('check') + ' Copied'; el.classList.add('ok'); clearTimeout(el._t); el._t = setTimeout(() => { el.textContent = 'Copy'; el.classList.remove('ok'); }, 1800); }; const fb = () => { const ta = document.createElement('textarea'); ta.value = it.text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch { toast('Select the text and copy it by hand.'); } ta.parentNode.removeChild(ta); }; navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(it.text).then(done, fb) : fb(); },
   filterTip(el) { tipFilter = el.dataset.v; $$('#tipChips .chip').forEach(c => c.classList.toggle('on', c === el)); $('#tiplist').innerHTML = tipList(); },
   fav(el) { const id = el.dataset.id; S.favs.includes(id) ? S.favs.splice(S.favs.indexOf(id), 1) : S.favs.push(id); save(); $('#tiplist').innerHTML = tipList(); },
   wishTick(el) { S.wish[+el.dataset.i].done = el.checked; if (el.checked) touch(15); save(); render(); },
