@@ -9,7 +9,7 @@ const dayStr = (d = new Date()) => d.toLocaleDateString('en-CA');
 const addDays = n => dayStr(dateOff(n));
 
 /* ---------- state ---------- */
-const fresh = () => ({ profile: null, done: {}, ex: {}, xp: 0, streak: { last: '', count: 0, best: 0 }, days: {}, daily: { date: '', checked: [] }, dailyDone: {}, freezes: 1, goal: 50, journal: [], favs: [], cards: {}, sessions: [], wish: [], theme: 'auto' });
+const fresh = () => ({ profile: null, done: {}, ex: {}, xp: 0, streak: { last: '', count: 0, best: 0 }, days: {}, daily: { date: '', checked: [] }, dailyDone: {}, freezes: 1, goal: 50, journal: [], favs: [], cards: {}, sessions: [], wish: [], theme: 'auto', answers: {}, jobs: [], sims: [], rp: {}, drill: { right: 0, total: 0 }, remind: { on: false, time: '18:00' } });
 let S;
 try { S = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch { S = fresh(); }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* storage unavailable */ } };
@@ -87,11 +87,19 @@ const IC = {
   arrow: '<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>',
   back: '<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',
   chev: '<polyline points="9 18 15 12 9 6"/>',
+  briefcase: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+  headphones: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
+  chart: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+  phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>',
+  clipboard: '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/>',
+  file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
   ext: '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>'
 };
 const icon = (n, c = '') => `<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
 const flame = () => icon('flame');
-const NAV = [['home', 'Today', 'home'], ['learn', 'Learn', 'book'], ['practice', 'Practice', 'mic'], ['tips', 'Tips', 'zap'], ['review', 'Review', 'repeat'], ['journal', 'Journal', 'edit'], ['profile', 'Me', 'user']];
+const NAV = [['home', 'Today', 'home'], ['learn', 'Learn', 'book'], ['practice', 'Practice', 'mic'], ['hub', 'Toolbox', 'briefcase'], ['review', 'Review', 'repeat'], ['journal', 'Journal', 'edit'], ['profile', 'Me', 'user']];
+const GROUP = { hub: ['tips', 'toolkit', 'answers', 'jobs', 'progress'], practice: ['sim', 'roleplay', 'listen'] };
+window.SB = { get S() { return S; }, set S(v) { S = v; }, save, touch, toast, esc, icon, go: h => { location.hash = '#/' + h; }, render: () => render(), $, $$, dayStr, addDays, dateOff, courses, allLessons, lessonId, courseById, radar: () => radar(), skillNow: k => skillNow(k), level: () => level(), SKILLS };
 
 /* ---------- router ---------- */
 const route = () => (location.hash.replace(/^#\/?/, '') || 'home').split('/');
@@ -106,13 +114,14 @@ function render() {
     $('#nav').innerHTML = ''; $('#tabs').innerHTML = ''; $('#chips').innerHTML = '';
     main.innerHTML = onboardView(); window.scrollTo(0, 0); return;
   }
-  const navHTML = NAV.map(([k, label, ic]) => { const on = view === k || (k === 'learn' && (view === 'course' || view === 'lesson')) || (k === 'tips' && view === 'toolkit'); return `<a href="#/${k}" class="${on ? 'on' : ''}" ${on ? 'aria-current="page"' : ''}>${icon(ic)}<span>${label}</span></a>`; }).join('');
+  const navHTML = NAV.map(([k, label, ic]) => { const on = view === k || (k === 'learn' && (view === 'course' || view === 'lesson')) || (GROUP[k] || []).includes(view); return `<a href="#/${k}" class="${on ? 'on' : ''}" ${on ? 'aria-current="page"' : ''}>${icon(ic)}<span>${label}</span></a>`; }).join('');
   $('#nav').innerHTML = navHTML; $('#tabs').innerHTML = navHTML;
   $('#chips').innerHTML = `<span class="tchip fire" title="Day streak">${flame()}${streakNow()}</span><span class="tchip" title="XP">${icon('zap')}${S.xp}</span><button class="tchip icon" data-act="theme" aria-label="Change theme">${icon('contrast')}</button><button class="tchip icon" data-act="help" aria-label="Keyboard shortcuts">${icon('help')}</button>`;
-  const views = { home: homeView, learn: learnView, course: courseView, lesson: lessonView, practice: practiceView, tips: tipsView, toolkit: toolkitView, review: reviewView, journal: journalView, profile: profileView };
+  const views = { home: homeView, learn: learnView, course: courseView, lesson: lessonView, practice: practiceView, tips: tipsView, toolkit: toolkitView, review: reviewView, journal: journalView, profile: profileView, ...((window.SBX && window.SBX.views) || {}) };
   main.innerHTML = (views[view] || homeView)(arg);
   window.scrollTo(0, 0);
   if (view === 'practice') initPractice();
+  if (window.SBX && window.SBX.after) window.SBX.after(view, arg);
 }
 window.addEventListener('hashchange', () => { stopStudio(); render(); $('#main').focus({ preventScroll: true }); });
 
@@ -184,6 +193,7 @@ function homeView() {
   const greet = hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening';
   const nl = nextLesson(), due = dueCards().length, st = streakNow();
   const tip = tipOfDay(), total = allLessons.length, done = Object.keys(S.done).length;
+  const jobsDue = (S.jobs || []).filter(j => j.follow && j.follow <= dayStr() && ['Applied', 'Screening', 'Interview'].includes(j.stage)).length;
   const goalMsg = todayXP() >= S.goal ? 'Daily goal complete. Nice work!' : `${S.goal - todayXP()} XP to hit today's goal.`;
   return `
   <div class="hero"><p class="eyebrow">${new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p>
@@ -209,6 +219,7 @@ function homeView() {
         <li><a href="#/practice"><span class="ico">${icon('mic')}</span><span><b>Speak for 60 seconds</b><small>Mock interview or small-talk prompt</small></span></a></li>
         <li><a href="#/review"><span class="ico">${icon('repeat')}</span><span><b>Review ${due} card${due === 1 ? '' : 's'}</b><small>${due ? 'Spaced repetition due now' : 'You are caught up'}</small></span>${due ? '' : `<span class="tick">${icon('check')}</span>`}</a></li>
         <li><a href="#/journal"><span class="ico">${icon('edit')}</span><span><b>Reflect for 2 minutes</b><small>${esc(journalPrompt())}</small></span></a></li>
+        ${jobsDue ? `<li><a href="#/jobs"><span class="ico">${icon('briefcase')}</span><span><b>Follow up on ${jobsDue} application${jobsDue === 1 ? '' : 's'}</b><small>Reminders you set are due</small></span></a></li>` : ''}
         <li><a href="#/tips"><span class="ico">${icon('zap')}</span><span><b>Tip of the day</b><small>${esc(tip.text)}</small></span></a></li>
       </ul></section>
     <section class="card"><h2 class="h-card">Your skill map</h2>${radar()}</section>
@@ -254,12 +265,24 @@ function courseView(id) {
 }
 
 /* ---------- lesson reading page ---------- */
+const ROOMS = ['Pintuan (front door)', 'Sala', 'Kusina', 'Kuwarto', 'Banyo', 'Balkonahe'];
+function taglishHTML(l) {
+  return l.taglish ? `<section id="sec-taglish" class="taglish"><h2>Sa Taglish</h2><p>${esc(l.taglish)}</p></section>` : '';
+}
+function memoryHTML(l) {
+  if (!l.memory) return '';
+  const steps = (l.flow && l.flow.length >= 3 ? l.flow : l.points.map(p => p[0])).slice(0, 6);
+  return `<section id="sec-memory" class="memory"><h2>Lock it in</h2>
+    <div><span class="mtag">Memory hook</span><p>${esc(l.memory)}</p></div>
+    <div class="mpart"><span class="mtag">Walk it through your bahay</span><ol class="rooms">${steps.map((st, k) => `<li><b>${ROOMS[k]}</b><span>${esc(st)}</span></li>`).join('')}</ol><p class="small muted">Close your eyes. Walk in order and put each step in its place with a silly, vivid picture. The sillier, the stronger.</p></div>
+    <div class="mpart"><span class="mtag">Review schedule</span><ol class="sched"><li><b>Today</b><span>Say the steps aloud 3 times without looking.</span></li><li><b>Tomorrow</b><span>Blank page: write what you remember, then check.</span></li><li><b>Day 3</b><span>Teach it to someone in Taglish, then in English.</span></li><li><b>Day 7</b><span>Use it in a real chat, call or practice session.</span></li><li><b>Day 30</b><span>Quick recall again. It is now long-term.</span></li></ol></div></section>`;
+}
 function lessonView(id) {
   const x = lessonById(id); if (!x) return learnView();
   if (!L || L.id !== id) L = { id, x, ans: {}, banner: null };
   const { c, l, i } = x, done = S.done[id], exs = S.ex[id] || [], d = l.deep || {};
   const prev = i > 0 ? lessonId(c, i - 1) : null, next = i < c.lessons.length - 1 ? lessonId(c, i + 1) : null;
-  const toc = [['overview', 'Overview'], l.flow && ['picture', 'Big picture'], ['ideas', 'Key ideas'], d.sections && ['deeper', 'Go deeper'], d.script && ['script', 'Example script'], d.mistakes && ['mistakes', 'Common mistakes'], ['tips', 'Pro tips'], l.mentor && ['mentor', "Mentor's corner"], ['activities', 'Activities'], d.plan && ['plan', '7-day plan'], ['quiz', 'Quiz']].filter(Boolean);
+  const toc = [['overview', 'Overview'], l.flow && ['picture', 'Big picture'], ['ideas', 'Key ideas'], l.taglish && ['taglish', 'Sa Taglish'], d.sections && ['deeper', 'Go deeper'], d.script && ['script', 'Example script'], d.mistakes && ['mistakes', 'Common mistakes'], ['tips', 'Pro tips'], l.mentor && ['mentor', "Mentor's corner"], l.memory && ['memory', 'Lock it in'], ['activities', 'Activities'], d.plan && ['plan', '7-day plan'], ['quiz', 'Quiz']].filter(Boolean);
   const b = L.banner;
   const banner = b ? `<div class="banner" role="status"><div><b class="h-card">${b.first ? 'Lesson complete' : 'Marked again'} · +${b.xp} XP</b><p>${b.extended ? `Streak extended to ${S.streak.count} day${S.streak.count === 1 ? '' : 's'}. ` : 'Streak is safe for today. '}${b.goalHit ? 'Daily goal reached.' : todayXP() >= S.goal ? 'Daily goal complete.' : `${S.goal - todayXP()} XP to your daily goal.`}</p></div>${weekDots(false)}</div>` : '';
   return `<div class="crumb"><a href="#/learn">Learn</a> / <a href="#/course/${c.id}">${esc(c.title)}</a> / Lesson ${i + 1} of ${c.lessons.length}</div>
@@ -270,12 +293,14 @@ function lessonView(id) {
       ${banner}
       <section id="sec-overview"><p class="eyebrow">${esc(c.title)} · ${l.mins} min read ${done ? '· Completed' : ''}</p><h1>${esc(l.t)}</h1><p class="intro">${esc(l.intro)}</p></section>
       ${l.flow ? `<section id="sec-picture"><h2>The big picture</h2><div class="flow" role="img" aria-label="Steps: ${esc(l.flow.join(', then '))}">${l.flow.map((f, k) => `${k ? `<span class="arrow">${icon('arrow')}</span>` : ''}<span class="step"><i>${k + 1}</i>${esc(f)}</span>`).join('')}</div></section>` : ''}
+      ${taglishHTML(l)}
       <section id="sec-ideas"><h2>Key ideas</h2><div class="stack">${l.points.map(([h, p]) => `<div class="idea"><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join('')}</div></section>
       ${d.sections ? `<section id="sec-deeper" class="prose"><h2>Go deeper</h2>${d.sections.map(([h, ps]) => `<h3>${esc(h)}</h3>${ps.map(p => `<p>${esc(p)}</p>`).join('')}`).join('')}</section>` : ''}
       ${d.script ? `<section id="sec-script"><h2>Example script</h2><p class="muted small">${esc(d.script[0])}. Read it aloud, then say your own version.</p><div class="script">${d.script[1].map(([w, t]) => `<div class="line ${w === 'You' ? 'me' : ''}"><b>${esc(w)}</b><span>${esc(t)}</span></div>`).join('')}</div></section>` : ''}
       ${d.mistakes ? `<section id="sec-mistakes"><h2>Common mistakes</h2><ul class="mistakes">${d.mistakes.map(m => `<li>${esc(m)}</li>`).join('')}</ul></section>` : ''}
       <section id="sec-tips"><h2>Pro tips</h2><div class="tipbox"><ul>${l.tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div></section>
       ${l.mentor ? `<section id="sec-mentor" class="mentor"><h2>Mentor's corner</h2><div class="mhack"><span class="mtag">Real-world hack</span><p>${esc(l.mentor.hack)}</p></div>${l.mentor.world ? `<div class="mworld"><span class="mtag">Across clients and cultures</span><ul>${l.mentor.world.split(' | ').map(w => { const k = w.indexOf(':'); return k > 0 && k < 16 ? `<li><b>${esc(w.slice(0, k))}</b>${esc(w.slice(k + 1))}</li>` : `<li>${esc(w)}</li>`; }).join('')}</ul></div>` : ''}</section>` : ''}
+      ${memoryHTML(l)}
       <section id="sec-activities"><h2>Activities: ${esc(l.ex.t)}</h2><div class="exbox">${l.ex.steps.map((t, k) => `<label class="check"><input type="checkbox" data-act="exTick" data-id="${id}" data-k="${k}" ${exs[k] ? 'checked' : ''}><span>${esc(t)}</span></label>`).join('')}</div><p style="margin-top:14px"><a class="btn" href="#/practice" target="_blank" rel="noopener">Open the speaking studio ${icon('ext', 'end')}</a></p></section>
       ${d.plan ? `<section id="sec-plan"><h2>7-day practice plan</h2><ol class="planlist">${d.plan.map(p => `<li>${esc(p)}</li>`).join('')}</ol></section>` : ''}
       <section id="sec-quiz"><h2>Check yourself</h2>${l.quiz.map((q, k) => `<div class="q" data-q="${k}" data-ans="${q.a}"><b>${esc(q.q)}</b>${q.o.map((o, j) => `<button class="opt" data-act="qpick" data-k="${k}" data-j="${j}">${esc(o)}</button>`).join('')}<div class="why" hidden>${esc(q.w)}</div></div>`).join('')}</section>
@@ -330,7 +355,11 @@ const sets = () => window.PROMPT_SETS || { Impromptu: window.PROMPTS };
 const nextPrompt = () => rnd(sets()[P.kind] || window.PROMPTS);
 function practiceView() {
   return `<div class="hero"><h1>Speak for a minute, then hear yourself</h1><p class="lead">Mock interviews, small talk and pitches. Recordings stay in your browser and are never uploaded.</p></div>
-  <section class="card studio" id="studio"></section>
+  <div class="grid g3 tools" data-nav>
+    <a class="card tool" href="#/sim">${icon('mic')}<b>Interview simulator</b><span class="muted small">10 questions, scored report</span></a>
+    <a class="card tool" href="#/roleplay">${icon('phone')}<b>Call roleplay</b><span class="muted small">Branching customer calls</span></a>
+    <a class="card tool" href="#/listen">${icon('headphones')}<b>Listening drills</b><span class="muted small">Numbers, names, accents</span></a></div>
+  <section class="card studio sec tight" id="studio"></section>
   <div class="grid g2 sec tight">
     <section class="card"><h2 class="h-card">Warm up your voice</h2><div id="twister"></div></section>
     <section class="card" style="text-align:center"><h2 class="h-card">Box breathing</h2><p class="muted small">Inhale 4 · hold 4 · exhale 4 · hold 4</p><div class="breath" id="breath">Ready</div><button class="btn" data-act="breathe" id="breathBtn">Start</button></section>
@@ -523,7 +552,7 @@ function profileView() {
     ${Object.entries(SKILLS).map(([k, v]) => `<div class="skill-row"><label for="ps-${k}">${v}</label><input type="range" id="ps-${k}" data-skill="${k}" min="1" max="5" value="${p.skills[k]}"><b id="sv-${k}">${p.skills[k]}</b></div>`).join('')}
     <div class="row" style="margin-top:16px"><button class="btn primary">Save changes</button></div>
   </form>
-  <section class="card sec tight"><h2 class="h-card">Settings</h2><div class="row"><button class="btn" data-act="theme">Theme: ${S.theme}</button><button class="btn" data-act="export">Export my data</button><button class="btn danger" data-act="reset">Reset everything</button></div></section>`;
+  <section class="card sec tight"><h2 class="h-card">Settings</h2><div class="row"><button class="btn" data-act="theme">Theme: ${S.theme}</button><button class="btn" data-act="export">Back up my data</button><button class="btn" data-act="importData">Restore a backup</button><button class="btn" data-act="remindSetup">Daily reminder</button><button class="btn" data-act="installApp" id="installBtn" hidden>Install app</button><button class="btn danger" data-act="reset">Reset everything</button></div></section>`;
 }
 
 /* ---------- events ---------- */
@@ -583,6 +612,7 @@ const actions = {
   },
   reset() { if (confirm('Erase all progress and start over? This cannot be undone.')) { S = fresh(); save(); ob.step = 0; go('home'); render(); } }
 };
+Object.assign(actions, (window.SBX && window.SBX.actions) || {});
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-act]'); if (!el || el.type === 'checkbox') return;
   actions[el.dataset.act]?.(el, e);
@@ -634,7 +664,7 @@ function arrowNav(e) {
   if (best) { e.preventDefault(); best.focus(); best.scrollIntoView({ block: 'nearest' }); }
 }
 let chord = false, chordT;
-const CHORDS = { k: 'toolkit', h: 'home', l: 'learn', p: 'practice', t: 'tips', r: 'review', j: 'journal', m: 'profile' };
+const CHORDS = { b: 'hub', s: 'sim', a: 'answers', o: 'jobs', x: 'progress', k: 'toolkit', h: 'home', l: 'learn', p: 'practice', t: 'tips', r: 'review', j: 'journal', m: 'profile' };
 document.addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const t = e.target, k = e.key, help = $('#help');
