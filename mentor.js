@@ -10,6 +10,8 @@
       l.mentor = { hack: m.hack, world: m.world };
       if (m.q) l.quiz.push({ q: m.q[0], o: m.q.slice(1, 5), a: 0, w: m.q[5] });
     }
+    const tg = (window.TAGLISH || {})[key];
+    if (tg && !l.taglish) { l.taglish = tg.t; l.memory = tg.m; }
     l.quiz.forEach((q, k) => {
       if (q._s) return;
       const right = q.o[q.a], r = rng(hash(`${key}.${k}`)), o = q.o.slice();
