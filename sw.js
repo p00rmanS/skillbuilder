@@ -1,5 +1,5 @@
 // Offline support. Pages load network-first (so updates arrive), everything else cache-first with a background refresh.
-const CACHE = 'skillbuilder-v14';
+const CACHE = 'skillbuilder-v15';
 self.addEventListener('install', e => {
   e.waitUntil((async () => {
     const cache = await caches.open(CACHE);
