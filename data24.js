@@ -133,7 +133,7 @@ window.COURSES.push({
     [Q(`When should you share bad news?`, [`As late as possible`, `As early as possible with a plan`, `Never`, `Only when asked`], 1, `Early disclosure with a plan builds trust.`)],
     DP([[`The structure`, [`Headline, facts, impact, plan, next update. "The report will be late. The data export failed. It affects the Friday meeting. I am rebuilding it and will update you at 3 pm."`]],
         [`Taking responsibility`, [`"I should have checked earlier" is stronger than excuses. Own your part and move to the fix.`]],
-        [`Stay calm`, `Breathe, slow your pace, and avoid over-apologising. Your calm gives others permission to stay calm.`]],
+        [`Stay calm`, [`Breathe, slow your pace, and avoid over-apologising. Your calm gives others permission to stay calm.`]]],
       `Sharing bad news`, [[`You`, `I need to flag a delay. The data export failed overnight, so the report will be late.`], [`You`, `It affects tomorrow's meeting. I am rebuilding it now and will update you at 3 pm.`], [`Manager`, `Thanks for the early notice.`]],
       [`Hiding problems.`, `Blaming others.`, `No plan.`, `Over-apologising.`],
       [`Day 1: Learn the structure.`, `Day 2: Draft a message.`, `Day 3: Practise calm delivery.`, `Day 4: Add a plan.`, `Day 5: Role-play.`, `Day 6: Review a past case.`, `Day 7: Review.`])),
