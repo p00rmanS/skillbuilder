@@ -98,7 +98,7 @@ const IC = {
 const icon = (n, c = '') => `<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
 const flame = () => icon('flame');
 const NAV = [['home', 'Today', 'home'], ['learn', 'Learn', 'book'], ['practice', 'Practice', 'mic'], ['hub', 'Toolbox', 'briefcase'], ['review', 'Review', 'repeat'], ['journal', 'Journal', 'edit'], ['profile', 'Me', 'user']];
-const GROUP = { hub: ['tips', 'toolkit', 'answers', 'jobs', 'progress'], practice: ['sim', 'roleplay', 'listen'] };
+const GROUP = { hub: ['tips', 'toolkit', 'answers', 'jobs', 'progress', 'plan'], practice: ['sim', 'roleplay', 'listen'] };
 window.SB = { get S() { return S; }, set S(v) { S = v; }, save, touch, toast, esc, icon, go: h => { location.hash = '#/' + h; }, render: () => render(), $, $$, dayStr, addDays, dateOff, courses, allLessons, lessonId, courseById, radar: () => radar(), skillNow: k => skillNow(k), level: () => level(), SKILLS };
 
 /* ---------- router ---------- */
