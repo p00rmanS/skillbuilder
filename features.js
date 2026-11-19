@@ -26,7 +26,8 @@ X.views.hub = () => {
     ${t('answers', 'edit', 'Answer bank', 'Write and rehearse your best answers')}
     ${t('jobs', 'briefcase', 'Job tracker', jobsDue ? `${jobsDue} follow-up${jobsDue === 1 ? '' : 's'} due` : 'Applications and follow-ups')}
     ${t('sim', 'mic', 'Interview simulator', 'Ten questions and a scored report')}
-    ${t('progress', 'chart', 'Progress report', 'Speaking, XP and skills over time')}
+    ${t('plan', 'check', '30-day challenge', S().plan30 && S().plan30.start ? `Day ${planDay()} of 30` : 'A guided plan to be job-ready')}
+    ${t('progress', 'chart', 'Progress report', 'Badges, speaking and XP over time')}
     ${t('tips', 'zap', 'Tips', 'Short ideas from every lesson')}
   </div>`;
 };
@@ -215,6 +216,7 @@ document.addEventListener('change', e => {
   if (fx === 'jobStage') { const j = S().jobs.find(x => x.id === t.dataset.id); if (j) { j.stage = t.value; if (t.value === 'Interview') j.follow = sb().addDays(2); sb().save(); $('#joblist').innerHTML = jobsList(); } }
   if (fx === 'jobFollow') { const j = S().jobs.find(x => x.id === t.dataset.id); if (j) { j.follow = t.value; sb().save(); $('#joblist').innerHTML = jobsList(); } }
   if (fx === 'simN') SIM.n = +t.value;
+  if (fx === 'planTick') { const P = S().plan30, d = +t.dataset.d, k = +t.dataset.k; P.done[planKey(d, k)] = t.checked; const all = window.PLAN30[d].tasks.every((_, j) => P.done[planKey(d, j)]); if (all && !P.xp[d]) { P.xp[d] = 1; sb().touch(30); toast('Day ' + (d + 1) + ' complete +30 XP'); sb().render(); } else { sb().save(); const sm = t.closest('details').querySelector('.status'); const n = window.PLAN30[d].tasks.filter((_, j) => P.done[planKey(d, j)]).length; if (sm) sm.textContent = n + '/3'; } }
   if (fx === 'simCheck') { SIM.cur.checks[+t.dataset.k] = t.checked; }
   if (fx === 'lsAcc') LS.acc = t.value;
   if (fx === 'lsRate') LS.rate = +t.value;
@@ -295,7 +297,7 @@ function newItem() {
   }
   if (m === 'Phone numbers') { const d = '555' + String(Math.floor(Math.random() * 1e7)).padStart(7, '0'); return { say: `My number is ${digitsSay(d.slice(0, 3))}, ${digitsSay(d.slice(3, 6))}, ${digitsSay(d.slice(6))}.`, ans: d, label: 'Type the 10 digits.' }; }
   if (m === 'Spelling') { const n = rnd(L.names); return { say: `The customer's last name is ${n}.`, ans: n, label: 'Type the name exactly as spelled.' }; }
-  if (m === 'Emails') { const u = `${rnd(['maria', 'carlos', 'anna', 'james', 'sofia'])}.${rnd(['lopez', 'tan', 'reyes', 'smith', 'cruz'])}`, dg = rnd(['', '', String(10 + Math.floor(Math.random() * 90))]), dom = rnd(['mail.com', 'example.org', 'work.net']); const em = `${u}${dg}@${dom}`; return { say: `My email is ${u.replace('.', ' dot ')} ${dg ? digitsSay(dg) : ''} at ${dom.replace('.', ' dot ')}.`, ans: em, label: 'Type the email address.' }; }
+  if (m === 'Emails') { const u = `${rnd(['maria', 'carlos', 'anna', 'peter', 'sofia'])}.${rnd(['lopez', 'tan', 'reyes', 'smith', 'cruz'])}`, dg = rnd(['', '', String(10 + Math.floor(Math.random() * 90))]), dom = rnd(['mail.com', 'example.org', 'work.net']); const em = `${u}${dg}@${dom}`; return { say: `My email is ${u.replace('.', ' dot ')} ${dg ? digitsSay(dg) : ''} at ${dom.replace('.', ' dot ')}.`, ans: em, label: 'Type the email address.' }; }
   const s = rnd(L.sentences); return { say: s, ans: s, label: 'Type what you hear.', sentence: true };
 }
 const norm = s => s.toLowerCase().replace(/[$,]/g, '').replace(/\s+/g, ' ').trim();
@@ -359,8 +361,45 @@ X.views.progress = () => {
   <section class="card sec tight"><h2 class="h-card">Speaking pace over time</h2>${svgLine(sp.map(x => x.w), 110, 170)}<p class="muted small">The shaded band is a clear pace for calls: 110 to 170 words per minute.${sp.length ? ' Fillers in your last session: ' + (sp[sp.length - 1].f ?? '–') + '.' : ''}</p></section>
   <div class="grid g2 sec tight"><section class="card"><h2 class="h-card">Lessons finished per week</h2>${svgBars(weeks, weeks.map((_, i) => i === 7 ? 'now' : ''), 0)}</section>
     <section class="card"><h2 class="h-card">Completion by area</h2>${cats.map(([c, d, t]) => `<div class="prog"><div class="row between"><span>${esc(c)}</span><span class="muted small">${d}/${t}</span></div><div class="bar"><i style="width:${d / t * 100}%"></i></div></div>`).join('')}</section></div>
+  <section class="card sec tight"><h2 class="h-card">Badges</h2><div class="badges">${badges().map(([n, on]) => `<div class="badge-item ${on ? 'on' : ''}">${icon(on ? 'check' : 'star')}<span>${esc(n)}</span></div>`).join('')}</div><p class="muted small">${badges().filter(b => b[1]).length} of ${badges().length} earned.</p></section>
   <section class="card sec tight"><h2 class="h-card">Your skill map</h2>${sb().radar()}</section>`;
 };
+
+
+/* ---------- 30-day job-ready challenge ---------- */
+const planDay = () => { const P = S().plan30; if (!P || !P.start) return 0; return Math.min(30, Math.floor((Date.parse(sb().dayStr()) - Date.parse(P.start)) / 864e5) + 1); };
+const planKey = (d, k) => `${d}.${k}`;
+X.views.plan = () => {
+  const P = S().plan30 || (S().plan30 = { start: null, done: {}, xp: {} }), PL = window.PLAN30;
+  if (!P.start) return `${hero('Become job-ready in 30 days', 'Three small tasks a day, each linked to the right lesson or tool. About 30 to 40 minutes a day.')}
+    <div class="card"><ul class="reviewlist">${PL.slice(0, 7).map((d, i) => `<li><span>Day ${i + 1}: ${esc(d.t)}</span></li>`).join('')}<li><span class="muted">...and 23 more days, ending with a full mock interview.</span></li></ul>
+    <div class="row end-row"><button class="btn primary lg" data-act="planStart">Start day 1 today</button></div></div>`;
+  const cur = planDay(), doneDays = PL.filter((d, i) => d.tasks.every((_, k) => P.done[planKey(i, k)])).length;
+  const card = (i, open) => { const d = PL[i], n = d.tasks.filter((_, k) => P.done[planKey(i, k)]).length;
+    return `<details class="card plan-day" ${open ? 'open' : ''}><summary><b>Day ${i + 1}: ${esc(d.t)}</b><span class="status ${n === 3 ? 'ok' : ''}">${n === 3 ? icon('check') + ' Done' : n + '/3'}</span></summary>
+      ${d.tasks.map(([t, h], k) => `<label class="check"><input type="checkbox" data-fx="planTick" data-d="${i}" data-k="${k}" ${P.done[planKey(i, k)] ? 'checked' : ''}><span>${esc(t)} <a href="${h}">Open</a></span></label>`).join('')}</details>`; };
+  return `${hero(cur >= 30 && doneDays === 30 ? 'You finished the 30-day challenge' : `Day ${cur} of 30: ${PL[cur - 1].t}`, 'Three small tasks a day. Missed a day? Just keep going, nothing resets.')}
+    <div class="row between"><div class="bar grow"><i style="width:${doneDays / 30 * 100}%"></i></div><span class="muted small">${doneDays}/30 days complete</span></div>
+    <div class="grid sec tight" id="planlist">${card(cur - 1, true)}${PL.map((_, i) => i === cur - 1 ? '' : card(i, false)).join('')}</div>
+    <p class="row end-row"><button class="btn ghost danger" data-act="planReset">Restart the challenge</button></p>`;
+};
+Object.assign(X.actions, {
+  planStart() { S().plan30 = { start: sb().dayStr(), done: {}, xp: {} }; sb().save(); sb().render(); },
+  planReset() { if (confirm('Restart the 30-day challenge from day 1?')) { S().plan30 = { start: sb().dayStr(), done: {}, xp: {} }; sb().save(); sb().render(); } }
+});
+
+/* ---------- badges ---------- */
+function badges() {
+  const s = S(), done = Object.keys(s.done).length, best = s.streak.best || 0, spoken = Math.round([...s.sessions, ...(s.sims || [])].reduce((a, x) => a + (x.secs || 0), 0) / 60);
+  const answers = Object.values(s.answers || {}).filter(a => a.text && a.text.trim()).length, rp = Object.keys(s.rp || {}).length, pd = s.plan30 ? window.PLAN30.filter((d, i) => d.tasks.every((_, k) => s.plan30.done[planKey(i, k)])).length : 0;
+  return [
+    ['First lesson', done >= 1], ['10 lessons', done >= 10], ['50 lessons', done >= 50], ['7-day streak', best >= 7], ['30-day streak', best >= 30],
+    ['1,000 XP', s.xp >= 1000], ['5,000 XP', s.xp >= 5000], ['First speaking session', s.sessions.length >= 1], ['One hour spoken', spoken >= 60],
+    ['First interview round', (s.sims || []).length >= 1], ['5 interview rounds', (s.sims || []).length >= 5], ['5 answers written', answers >= 5], ['All 14 answers written', answers >= 14],
+    ['First application', (s.jobs || []).length >= 1], ['10 applications', (s.jobs || []).length >= 10], ['An interview booked', (s.jobs || []).some(j => j.stage === 'Interview' || j.stage === 'Offer')],
+    ['3 roleplays done', rp >= 3], ['All roleplays done', rp >= window.RP.length], ['50 listening drills right', (s.drill || {}).right >= 50], ['7 challenge days', pd >= 7], ['30-day challenge complete', pd >= 30]
+  ];
+}
 
 /* ---------- reminders, backup restore, install ---------- */
 let deferred = null;

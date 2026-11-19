@@ -447,3 +447,13 @@ button.pick { width: 100%; cursor: pointer; }
 .sched li { grid-template-columns: 5.5em 1fr; }
 .rooms b, .sched b { color: var(--good-text); }
 @media (max-width: 860px) { .rooms li { grid-template-columns: 1fr; gap: 2px; } .sched li { grid-template-columns: 5em 1fr; } }
+
+/* 30-day challenge and badges */
+.plan-day { --pad: var(--s4); padding: var(--pad) var(--s5); }
+.plan-day summary { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); cursor: pointer; list-style: none; }
+.plan-day summary::-webkit-details-marker { display: none; }
+.plan-day[open] summary { margin-bottom: var(--s2); }
+.badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s2); margin-bottom: var(--s3); }
+.badge-item { display: flex; align-items: center; gap: var(--s2); padding: var(--s3); border-radius: var(--r-sm); background: var(--surface2); color: var(--muted); font-size: var(--fs-sm); font-weight: 600; opacity: .75; }
+.badge-item.on { background: var(--good-soft); color: var(--good-text); opacity: 1; }
+.badge-item .i { width: 18px; height: 18px; vertical-align: 0; }
